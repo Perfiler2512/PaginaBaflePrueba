@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instalación de Parlantes Bafle — Guía Técnica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#121214;
+    --panel:#1b1b1e;
+    --panel-2:#202024;
+    --line: rgba(199,201,204,0.14);
+    --metal:#c7c9cc;
+    --text:#f2f1ed;
+    --muted:#8a8a8f;
+    --signal:#4fd1a5;
+    --signal-dim: rgba(79,209,165,0.15);
+    --warn:#e85d4e;
+    --warn-dim: rgba(232,93,78,0.15);
+    --amber:#e8a33d;
+    --radius: 4px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--signal); color:#08110d; }
+
+  .mono{ font-family:'JetBrains Mono', monospace; }
+
+  /* Faint textured backdrop like brushed metal / grille */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  a{ color:inherit; }
+  .wrap{ max-width:920px; margin:0 auto; padding:0 24px; position:relative; z-index:1; }
+
+  /* ---------- Header / rack strip ---------- */
+  header{
+    border-bottom:1px solid var(--line);
+    padding:14px 0;
+    position:sticky; top:0;
+    background:rgba(18,18,20,0.9);
+    backdrop-filter: blur(6px);
+    z-index:10;
+  }
+  .rack-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  .brand{
+    font-family:'Bebas Neue', sans-serif;
+    letter-spacing:0.08em;
+    font-size:20px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .brand .dot{
+    width:9px; height:9px; border-radius:50%;
+    background:var(--signal);
+    box-shadow:0 0 8px var(--signal);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+  nav{ display:flex; gap:22px; font-size:13px; color:var(--muted); }
+  nav a{ text-decoration:none; transition:color .2s; }
+  nav a:hover{ color:var(--signal); }
+  @media (max-width:640px){ nav{ display:none; } }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:72px 0 56px;
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    color:var(--signal);
+    text-transform:uppercase;
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{
+    content:""; width:24px; height:1px; background:var(--signal);
+  }
+  h1{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:clamp(42px, 8vw, 76px);
+    line-height:0.96;
+    letter-spacing:0.01em;
+    margin:0 0 22px;
+    text-transform:uppercase;
+  }
+  h1 span{ color:var(--signal); }
+  .hero p.lead{
+    max-width:560px;
+    color:var(--muted);
+    font-size:17px;
+  }
+  .specs-strip{
+    margin-top:36px;
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .specs-strip div{
+    padding:14px 16px;
+    border-right:1px solid var(--line);
+  }
+  .specs-strip div:last-child{ border-right:none; }
+  .specs-strip .k{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
+  .specs-strip .v{ font-family:'JetBrains Mono', monospace; font-size:15px; }
+  @media (max-width:640px){ .specs-strip{ grid-template-columns:repeat(2,1fr);} .specs-strip div:nth-child(2){border-right:none;} .specs-strip div:nth-child(1),.specs-strip div:nth-child(2){border-bottom:1px solid var(--line);} }
+
+  section{ padding:64px 0; border-bottom:1px solid var(--line); }
+  .section-head{ margin-bottom:36px; }
+  .section-head .num{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--muted);
+    font-size:13px;
+  }
+  h2{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:clamp(28px,4vw,38px);
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+    margin:6px 0 10px;
+  }
+  .section-head p{ color:var(--muted); max-width:560px; margin:0; }
+
+  /* ---------- Herramientas ---------- */
+  .tools-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .tool{
+    background:var(--panel);
+    padding:18px 20px;
+    display:flex; gap:14px; align-items:flex-start;
+  }
+  .tool .icon{
+    flex:none;
+    width:34px; height:34px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--signal);
+  }
+  .tool h3{ margin:0 0 4px; font-size:15px; font-weight:600; }
+  .tool p{ margin:0; font-size:13px; color:var(--muted); }
+  @media (max-width:640px){ .tools-grid{ grid-template-columns:1fr; } }
+
+  /* ---------- Pasos ---------- */
+  .steps{ display:flex; flex-direction:column; }
+  .step{
+    display:grid;
+    grid-template-columns:64px 1fr;
+    gap:20px;
+    padding:26px 0;
+    border-top:1px solid var(--line);
+  }
+  .step:last-child{ border-bottom:1px solid var(--line); }
+  .step .idx{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:40px;
+    color:transparent;
+    -webkit-text-stroke: 1px var(--metal);
+    line-height:1;
+  }
+  .step h3{ margin:2px 0 8px; font-size:18px; font-weight:600; }
+  .step p{ margin:0; color:var(--muted); font-size:14.5px; max-width:600px; }
+  .step .tag{
+    display:inline-block;
+    margin-top:12px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    color:var(--amber);
+    background: rgba(232,163,61,0.1);
+    border:1px solid rgba(232,163,61,0.3);
+    padding:3px 8px;
+    border-radius:3px;
+  }
+
+  /* ---------- Signature: diagrama de polaridad ---------- */
+  .diagram-panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:28px;
+  }
+  .diagram-toolbar{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:20px;
+    flex-wrap:wrap; gap:12px;
+  }
+  .diagram-toolbar .label{
+    font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--muted);
+  }
+  .toggle{
+    display:inline-flex;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:3px;
+    background:var(--panel-2);
+  }
+  .toggle button{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    padding:7px 16px;
+    border-radius:999px;
+    border:none;
+    background:transparent;
+    color:var(--muted);
+    cursor:pointer;
+    transition: all .2s;
+  }
+  .toggle button.active{
+    background:var(--signal);
+    color:#08110d;
+    font-weight:700;
+  }
+  .toggle button.active.bad{
+    background:var(--warn);
+    color:#1a0a08;
+  }
+  svg{ display:block; width:100%; height:auto; }
+  .diagram-status{
+    margin-top:18px;
+    display:flex; align-items:center; gap:10px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+  }
+  .status-dot{ width:8px; height:8px; border-radius:50%; }
+  .diagram-note{ color:var(--muted); font-size:13.5px; margin-top:6px; }
+
+  /* ---------- Ubicación cards ---------- */
+  .placement-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+  }
+  .placement-card{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px;
+    background:var(--panel);
+  }
+  .placement-card .lvl{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px; color:var(--signal);
+    text-transform:uppercase; letter-spacing:0.06em;
+    margin-bottom:10px;
+  }
+  .placement-card h3{ margin:0 0 6px; font-size:15px; }
+  .placement-card p{ margin:0; font-size:13px; color:var(--muted); }
+  @media (max-width:720px){ .placement-grid{ grid-template-columns:1fr; } }
+
+  /* ---------- Seguridad ---------- */
+  .safety-list{ display:flex; flex-direction:column; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .safety-item{
+    background:var(--panel);
+    padding:16px 20px;
+    display:flex; gap:14px; align-items:flex-start;
+  }
+  .safety-item .flag{
+    flex:none; width:24px; height:24px; border-radius:3px;
+    background:var(--warn-dim); color:var(--warn);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:700;
+    border:1px solid rgba(232,93,78,0.35);
+  }
+  .safety-item p{ margin:0; font-size:14px; color:var(--text); }
+  .safety-item p b{ color:var(--warn); font-weight:600; }
+
+  footer{
+    padding:36px 0 60px;
+    text-align:center;
+    color:var(--muted);
+    font-size:12.5px;
+    font-family:'JetBrains Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap rack-row">
+    <div class="brand"><span class="dot"></span>BAFLE // INSTALACIÓN</div>
+    <nav>
+      <a href="#herramientas">Herramientas</a>
+      <a href="#pasos">Pasos</a>
+      <a href="#polaridad">Polaridad</a>
+      <a href="#ubicacion">Ubicación</a>
+      <a href="#seguridad">Seguridad</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Guía técnica · Audio en vivo</div>
+    <h1>Instalación de<br>parlantes <span>bafle</span></h1>
+    <p class="lead">Del amplificador al gabinete: cómo conectar, ubicar y calibrar un sistema de bafles sin quemar el amplificador ni cancelar el sonido por error de fase.</p>
+
+    <div class="specs-strip">
+      <div><div class="k">Nivel</div><div class="v">Básico–Intermedio</div></div>
+      <div><div class="k">Tiempo estimado</div><div class="v">45–90 min</div></div>
+      <div><div class="k">Riesgo eléctrico</div><div class="v">Bajo</div></div>
+      <div><div class="k">Herramientas</div><div class="v">6 esenciales</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="herramientas">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="num">§01</div>
+      <h2>Antes de empezar</h2>
+      <p>Lo que necesitás sobre la mesa antes de tocar un cable.</p>
+    </div>
+    <div class="tools-grid">
+      <div class="tool">
+        <div class="icon">⏚</div>
+        <div><h3>Cable de parlante</h3><p>Calibre adecuado a la potencia y distancia (AWG 12–16 típico).</p></div>
+      </div>
+      <div class="tool">
+        <div class="icon">⚡</div>
+        <div><h3>Amplificador o mezcladora amplificada</h3><p>Con potencia e impedancia compatibles con el bafle.</p></div>
+      </div>
+      <div class="tool">
+        <div class="icon">✕</div>
+        <div><h3>Conectores</h3><p>Speakon, banana o a tornillo, según el gabinete y el ampli.</p></div>
+      </div>
+      <div class="tool">
+        <div class="icon">Ω</div>
+        <div><h3>Multímetro</h3><p>Para verificar continuidad y polaridad antes de energizar.</p></div>
+      </div>
+      <div class="tool">
+        <div class="icon">▲</div>
+        <div><h3>Soporte, trípode o rack</h3><p>Fijo o portátil, según altura y ángulo de proyección.</p></div>
+      </div>
+      <div class="tool">
+        <div class="icon">✎</div>
+        <div><h3>Etiquetas o cinta de color</h3><p>Para marcar canal izquierdo/derecho y polaridad + / −.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pasos">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="num">§02</div>
+      <h2>Pasos de instalación</h2>
+      <p>Seguí el orden: cada paso depende del anterior para que el sistema arranque sin sorpresas.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="idx">01</div>
+        <div>
+          <h3>Verificar potencia e impedancia</h3>
+          <p>Confirmá que la potencia RMS del amplificador no supere la del bafle, y que la impedancia (4Ω, 8Ω, 16Ω) sea compatible entre ambos equipos.</p>
+          <span class="tag">Evita daño al bafle</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="idx">02</div>
+        <div>
+          <h3>Elegir la ubicación</h3>
+          <p>Definí altura, ángulo y distancia respecto al público o la zona a cubrir, evitando esquinas cerradas y superficies muy reflectantes.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="idx">03</div>
+        <div>
+          <h3>Montar el soporte</h3>
+          <p>Fijá el trípode, rack o soporte de pared asegurando que soporte el peso del bafle y quede estable ante vibraciones.</p>
+          <span class="tag">Verificar anclaje</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="idx">04</div>
+        <div>
+          <h3>Conectar los cables respetando la polaridad</h3>
+          <p>Unir siempre positivo con positivo y negativo con negativo entre amplificador y bafle. Invertir la polaridad en un solo canal cancela graves y desfasa el sonido.</p>
+          <span class="tag">Punto crítico — ver diagrama abajo</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="idx">05</div>
+        <div>
+          <h3>Configurar el amplificador</h3>
+          <p>Con el volumen al mínimo, encendé primero las fuentes de señal y por último el amplificador. Ajustá ganancia y ecualización gradualmente.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="idx">06</div>
+        <div>
+          <h3>Probar el sistema</h3>
+          <p>Reproducí una pista de referencia y subí el volumen de a poco, revisando que ambos bafles suenen en fase y sin distorsión.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="polaridad">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="num">§03</div>
+      <h2>Polaridad: el error más común</h2>
+      <p>Un cable invertido no rompe nada, pero cancela frecuencias y "vacía" el sonido. Tocá el interruptor para comparar.</p>
+    </div>
+
+    <div class="diagram-panel">
+      <div class="diagram-toolbar">
+        <div class="label">CONEXIÓN AMPLIFICADOR → BAFLE</div>
+        <div class="toggle">
+          <button id="btn-correct" class="active">CORRECTA</button>
+          <button id="btn-wrong">INVERTIDA</button>
+        </div>
+      </div>
+
+      <svg id="polarity-svg" viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg">
+        <!-- Amp box -->
+        <rect x="30" y="70" width="150" height="120" rx="4" fill="#202024" stroke="#c7c9cc" stroke-opacity="0.3"/>
+        <text x="105" y="45" text-anchor="middle" fill="#8a8a8f" font-family="JetBrains Mono, monospace" font-size="12">AMPLIFICADOR</text>
+        <circle cx="70" cy="110" r="7" fill="none" stroke="#c7c9cc" stroke-width="1.5"/>
+        <text x="70" y="115" text-anchor="middle" fill="#c7c9cc" font-family="JetBrains Mono, monospace" font-size="11">+</text>
+        <circle cx="70" cy="150" r="7" fill="none" stroke="#c7c9cc" stroke-width="1.5"/>
+        <text x="70" y="155" text-anchor="middle" fill="#c7c9cc" font-family="JetBrains Mono, monospace" font-size="11">−</text>
+
+        <!-- Speaker box -->
+        <rect x="580" y="70" width="150" height="120" rx="4" fill="#202024" stroke="#c7c9cc" stroke-opacity="0.3"/>
+        <text x="655" y="45" text-anchor="middle" fill="#8a8a8f" font-family="JetBrains Mono, monospace" font-size="12">BAFLE</text>
+        <circle cx="620" cy="110" r="7" fill="none" stroke="#c7c9cc" stroke-width="1.5"/>
+        <text x="620" y="115" text-anchor="middle" fill="#c7c9cc" font-family="JetBrains Mono, monospace" font-size="11">+</text>
+        <circle cx="620" cy="150" r="7" fill="none" stroke="#c7c9cc" stroke-width="1.5"/>
+        <text x="620" y="155" text-anchor="middle" fill="#c7c9cc" font-family="JetBrains Mono, monospace" font-size="11">−</text>
+
+        <!-- wires: positive (top) -->
+        <path id="wire-pos" d="M77 110 C 300 110, 340 110, 613 110" fill="none" stroke="#4fd1a5" stroke-width="2.5"/>
+        <!-- wires: negative (bottom), id target changes for wrong -->
+        <path id="wire-neg" d="M77 150 C 300 150, 340 150, 613 150" fill="none" stroke="#4fd1a5" stroke-width="2.5"/>
+
+        <!-- signal pulses -->
+        <circle id="pulse1" r="4" fill="#4fd1a5">
+          <animateMotion dur="1.8s" repeatCount="indefinite" path="M77 110 C 300 110, 340 110, 613 110"/>
+        </circle>
+        <circle id="pulse2" r="4" fill="#4fd1a5">
+          <animateMotion dur="1.8s" repeatCount="indefinite" path="M77 150 C 300 150, 340 150, 613 150"/>
+        </circle>
+
+        <!-- waveforms below -->
+        <text x="105" y="225" text-anchor="middle" fill="#8a8a8f" font-family="JetBrains Mono, monospace" font-size="10">SEÑAL</text>
+        <path d="M55 240 Q 80 220 105 240 T 155 240" fill="none" stroke="#c7c9cc" stroke-width="1.5" opacity="0.6"/>
+
+        <text x="655" y="225" text-anchor="middle" fill="#8a8a8f" font-family="JetBrains Mono, monospace" font-size="10" id="result-label">RESULTADO</text>
+        <path id="result-wave" d="M605 240 Q 630 220 655 240 T 705 240" fill="none" stroke="#4fd1a5" stroke-width="1.5"/>
+      </svg>
+
+      <div class="diagram-status">
+        <span class="status-dot" id="status-dot" style="background:#4fd1a5;"></span>
+        <span id="status-text">En fase — las dos ondas suman y el bajo se escucha completo.</span>
+      </div>
+      <p class="diagram-note">Tip: si tenés dos bafles y uno suena "fino" o sin graves comparado con el otro, es casi siempre un cable de polaridad invertida entre ambos.</p>
+    </div>
+  </div>
+</section>
+
+<section id="ubicacion">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="num">§04</div>
+      <h2>Dónde ubicar el bafle</h2>
+      <p>La posición cambia más el sonido que casi cualquier ajuste de ecualizador.</p>
+    </div>
+    <div class="placement-grid">
+      <div class="placement-card">
+        <div class="lvl">Altura</div>
+        <h3>Sobre el nivel del oído</h3>
+        <p>Elevado 1.5–2 m evita que el sonido se pierda entre el público y mejora la proyección.</p>
+      </div>
+      <div class="placement-card">
+        <div class="lvl">Distancia a paredes</div>
+        <h3>Separado de esquinas</h3>
+        <p>Pegado a una esquina o pared refuerza artificialmente los graves y distorsiona la mezcla.</p>
+      </div>
+      <div class="placement-card">
+        <div class="lvl">Ángulo</div>
+        <h3>Apuntando al público</h3>
+        <p>Inclinado hacia el área de escucha, no hacia el techo o el piso, salvo diseño específico.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="seguridad">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="num">§05</div>
+      <h2>Seguridad y errores a evitar</h2>
+    </div>
+    <div class="safety-list">
+      <div class="safety-item">
+        <div class="flag">!</div>
+        <p><b>Nunca conectes o desconectes cables con el amplificador encendido.</b> Podés dañar la etapa de potencia o el bafle.</p>
+      </div>
+      <div class="safety-item">
+        <div class="flag">!</div>
+        <p><b>No superes la impedancia mínima soportada</b> por el amplificador al conectar varios bafles en paralelo.</p>
+      </div>
+      <div class="safety-item">
+        <div class="flag">!</div>
+        <p><b>Asegurá bien los soportes elevados.</b> Un bafle en altura mal anclado es un riesgo físico serio para el público.</p>
+      </div>
+      <div class="safety-item">
+        <div class="flag">!</div>
+        <p><b>Subí el volumen gradualmente</b> al encender el sistema; un pico de señal puede dañar el bafle instantáneamente.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  GUÍA DE INSTALACIÓN · USO EDUCATIVO
+</footer>
+
+<script>
+  const btnCorrect = document.getElementById('btn-correct');
+  const btnWrong = document.getElementById('btn-wrong');
+  const wirePos = document.getElementById('wire-pos');
+  const wireNeg = document.getElementById('wire-neg');
+  const statusDot = document.getElementById('status-dot');
+  const statusText = document.getElementById('status-text');
+  const resultWave = document.getElementById('result-wave');
+
+  const CORRECT_PATH_NEG = "M77 150 C 300 150, 340 150, 613 150";
+  const WRONG_PATH_NEG   = "M77 150 C 300 150, 340 110, 613 110";
+  const WRONG_PATH_POS   = "M77 110 C 300 110, 340 150, 613 150";
+
+  function setCorrect(){
+    btnCorrect.classList.add('active');
+    btnCorrect.classList.remove('bad');
+    btnWrong.classList.remove('active');
+
+    wirePos.setAttribute('d', "M77 110 C 300 110, 340 110, 613 110");
+    wirePos.setAttribute('stroke', '#4fd1a5');
+    wireNeg.setAttribute('d', CORRECT_PATH_NEG);
+    wireNeg.setAttribute('stroke', '#4fd1a5');
+
+    statusDot.style.background = '#4fd1a5';
+    statusText.textContent = 'En fase — las dos ondas suman y el bajo se escucha completo.';
+    resultWave.setAttribute('stroke', '#4fd1a5');
+    resultWave.setAttribute('d', "M605 240 Q 630 220 655 240 T 705 240");
+  }
+
+  function setWrong(){
+    btnWrong.classList.add('active');
+    btnWrong.classList.add('bad');
+    btnCorrect.classList.remove('active');
+
+    wirePos.setAttribute('d', "M77 110 C 300 110, 340 110, 613 110");
+    wirePos.setAttribute('stroke', '#4fd1a5');
+    wireNeg.setAttribute('d', WRONG_PATH_NEG);
+    wireNeg.setAttribute('stroke', '#e85d4e');
+
+    statusDot.style.background = '#e85d4e';
+    statusText.textContent = 'Fuera de fase — las ondas se cancelan: se pierden graves y el sonido suena "hueco".';
+    resultWave.setAttribute('stroke', '#e85d4e');
+    resultWave.setAttribute('d', "M605 240 L 655 240 L 705 240");
+  }
+
+  btnCorrect.addEventListener('click', setCorrect);
+  btnWrong.addEventListener('click', setWrong);
+</script>
+
+</body>
+</html>
